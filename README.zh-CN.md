@@ -1,5 +1,17 @@
 # Basjoo
 
+[English](README.md) | 简体中文
+
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)](https://redis.io/)
+[![R2R](https://img.shields.io/badge/R2R-向量检索-blue)](https://r2r.run/)
+[![Scrapling](https://img.shields.io/badge/Scrapling-网页抓取-green)](https://github.com/D4Vinci/Scrapling)
+
 Basjoo 是一个面向 AI 客服场景的平台，主要由三部分组成：
 
 - `backend/` 中的 **FastAPI 后端**，负责智能体配置、聊天、索引、认证和定时任务
@@ -56,7 +68,7 @@ sudo sh install-deploy.sh
 
 - 支持多种模型服务商配置的 AI 智能体
 - 支持独立选择知识检索 Embedding API：Jina 或 SiliconFlow
-- URL 抓取与 Q&A 知识管理
+- URL 抓取与文件知识管理
 - 基于 R2R 的检索与索引重建任务
 - 基于 Server-Sent Events 的流式聊天回复
 - 可嵌入网站的聊天组件，并带有会话持久化能力
@@ -72,43 +84,43 @@ sudo sh install-deploy.sh
 
 管理后台是配置智能体、查看知识覆盖情况、进入各个运营模块的统一入口。
 
-![中文后台总览截图](resource/screenshots/admin/zh-CN/dashboard.png)
+![管理后台总览](resource/screenshots/admin/en-US/dashboard.png)
 
 ### Playground 与 AI 配置
 
 Playground 页面可以测试回复效果、观察检索结果，并联动调整模型与服务商配置。
 
-![中文 Playground 截图](resource/screenshots/admin/zh-CN/playground.png)
+![Playground](resource/screenshots/admin/en-US/playground.png)
 
 ### 网站知识管理
 
 网站管理页面用于添加 URL、执行抓取、配置自动抓取，并触发训练/索引更新流程。
 
-![中文网站管理截图](resource/screenshots/admin/zh-CN/websites.png)
+![网站管理](resource/screenshots/admin/en-US/websites.png)
 
-### Q&A 知识管理
+### 文件知识管理
 
-Q&A 页面用于录入、批量导入、编辑问答条目，并在保存后重建知识索引。
+文件上传页面支持拖拽上传文档（PDF、TXT、CSV、MD、DOCX 等）作为 AI 知识来源，并自动建立索引。
 
-![中文 Q&A 管理截图](resource/screenshots/admin/zh-CN/qa.png)
+![文件上传](resource/screenshots/admin/en-US/file-upload.png)
+
+### 用户管理
+
+用户管理页面提供基于角色的访问控制，支持三级权限：超管、管理员、客服。
+
+![用户管理](resource/screenshots/admin/en-US/users.png)
 
 ### 会话中心
 
 会话中心展示实时对话列表，支持人工接管，并帮助运营人员统一查看访客会话状态。
 
-![中文会话中心截图](resource/screenshots/admin/zh-CN/sessions.png)
+![会话中心](resource/screenshots/admin/en-US/sessions.png)
 
 ### 系统设置与 Widget 外观
 
 系统设置页面用于管理语言/主题偏好、Widget 外观、嵌入行为及其它后台配置。
 
-![中文系统设置截图](resource/screenshots/admin/zh-CN/system-settings.png)
-
-### 嵌入式 Widget 聊天窗口
-
-Widget 提供访客侧聊天入口，支持会话持久化、多语言文案、流式回复和知识辅助回答。
-
-![中文 Widget 截图](resource/screenshots/widget/zh-CN/widget-window.png)
+![系统设置](resource/screenshots/admin/en-US/system-settings.png)
 
 ## 技术栈
 
@@ -299,7 +311,7 @@ docker compose --profile dev up --watch
 
 - `/api/admin` 下的认证路由
 - `/api/v1` 下的业务 API（聊天、智能体配置、会话、配额、任务状态）
-- admin-only 路由：`url_endpoints.py`（URL 导入、Q&A 管理、抓取）和 `index_endpoints.py`（索引重建任务）在 router 级别通过 `Depends(get_current_admin)` 进行管理员鉴权保护
+- admin-only 路由：`url_endpoints.py`（URL 导入、抓取）和 `index_endpoints.py`（索引重建任务）在 router 级别通过 `Depends(get_current_admin)` 进行管理员鉴权保护
 - public v1 路由：`/api/v1/chat`、`/api/v1/chat/stream`、`/api/v1/contexts`、`/api/v1/config:public`
 - CORS 中间件，早返回响应（限流 429、请求体 413）通过共享 `apply_cors_headers()` 处理
 - i18n 中间件
@@ -342,7 +354,7 @@ docker compose --profile dev up --watch
 
 模型服务抽象位于 `backend/services/llm_service.py`。服务商选择由 `Agent.provider_type` 决定。当前代码支持多种 OpenAI 兼容服务商，以及专门的 OpenAI Native 和 Google 路径。
 
-Embedding 设置与聊天模型服务商相互独立。管理员可以在 Playground 中为知识库索引/检索选择 Jina 或 SiliconFlow；网站与 Q&A 知识库页面只要求当前已选择的 Embedding API 对应 Key 已配置。SiliconFlow 可以使用独立的 SiliconFlow Embedding API Key；当 AI 服务商也选择 SiliconFlow 时，也兼容使用主 SiliconFlow AI Key 作为历史回退。
+Embedding 设置与聊天模型服务商相互独立。管理员可以在 Playground 中为知识库索引/检索选择 Jina 或 SiliconFlow；网站与文件上传页面只要求当前已选择的 Embedding API 对应 Key 已配置。SiliconFlow 可以使用独立的 SiliconFlow Embedding API Key；当 AI 服务商也选择 SiliconFlow 时，也兼容使用主 SiliconFlow AI Key 作为历史回退。
 
 ### 前端
 
@@ -452,6 +464,16 @@ DEFAULT_AGENT_ID=agt_123456789abc
 - `/api/v1/urls:refetch`
 - `/api/v1/index:rebuild`
 - `/api/v1/index:status`
+
+## 贡献者
+
+<a href="https://github.com/haoyiyin/basjoo/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=haoyiyin/basjoo" />
+</a>
+
+## Star 趋势
+
+[![Star History Chart](https://api.star-history.com/svg?repos=haoyiyin/basjoo&type=Date)](https://star-history.com/#haoyiyin/basjoo&Date)
 
 ## 当前说明
 

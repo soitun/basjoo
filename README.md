@@ -2,6 +2,16 @@
 
 English | [简体中文](README.zh-CN.md)
 
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)](https://redis.io/)
+[![R2R](https://img.shields.io/badge/R2R-Vector_Search-blue)](https://r2r.run/)
+[![Scrapling](https://img.shields.io/badge/Scrapling-Web_Fetch-green)](https://github.com/D4Vinci/Scrapling)
+
 Basjoo is an AI customer-support platform with three main parts:
 
 - a **FastAPI backend** for agent configuration, chat, indexing, auth, and scheduling
@@ -51,7 +61,7 @@ sudo sh install-deploy.sh
 
 - Configurable AI agents with multiple provider settings
 - Independent Embedding API selection for knowledge retrieval: Jina or SiliconFlow
-- URL ingestion and Q&A knowledge management
+- URL ingestion and file knowledge management
 - R2R-backed retrieval and index rebuild jobs
 - Streaming chat responses over Server-Sent Events
 - Embeddable website widget with session persistence
@@ -67,43 +77,43 @@ sudo sh install-deploy.sh
 
 The admin dashboard is the operational center for configuring agents, reviewing knowledge coverage, and accessing the major management modules.
 
-![English admin dashboard screenshot](resource/screenshots/admin/en-US/dashboard.png)
+![Admin dashboard](resource/screenshots/admin/en-US/dashboard.png)
 
 ### Playground and AI configuration
 
 The Playground lets admins test replies, inspect retrieval behavior, and adjust model/provider settings from the same workflow.
 
-![English playground screenshot](resource/screenshots/admin/en-US/playground.png)
+![Playground](resource/screenshots/admin/en-US/playground.png)
 
 ### Website knowledge management
 
 The Websites page handles URL ingestion, crawling, auto-fetch settings, and retraining/index-refresh workflows for web content.
 
-![English website management screenshot](resource/screenshots/admin/en-US/websites.png)
+![Website management](resource/screenshots/admin/en-US/websites.png)
 
-### Q&A knowledge management
+### File knowledge management
 
-The Q&A page is used to create, batch import, edit, and rebuild structured question/answer knowledge.
+The File Upload page lets admins upload documents (PDF, TXT, CSV, MD, DOCX, etc.) as AI knowledge sources, with drag-and-drop support and automatic indexing.
 
-![English Q&A management screenshot](resource/screenshots/admin/en-US/qa.png)
+![File upload](resource/screenshots/admin/en-US/file-upload.png)
+
+### User management
+
+The Users page provides role-based access control with three permission levels: Super Admin, Admin, and Support.
+
+![User management](resource/screenshots/admin/en-US/users.png)
 
 ### Session operations
 
 The Sessions page shows live conversations, supports human takeover, and gives operators a single place to monitor visitor activity.
 
-![English sessions screenshot](resource/screenshots/admin/en-US/sessions.png)
+![Sessions](resource/screenshots/admin/en-US/sessions.png)
 
 ### System settings and widget appearance
 
 System Settings covers language/theme preferences, widget appearance, embed behavior, and other operational controls.
 
-![English system settings screenshot](resource/screenshots/admin/en-US/system-settings.png)
-
-### Embedded widget experience
-
-The widget provides the visitor-facing chat window with persisted sessions, multilingual copy, streaming responses, and knowledge-assisted replies.
-
-![English widget screenshot](resource/screenshots/widget/en-US/widget-window.png)
+![System settings](resource/screenshots/admin/en-US/system-settings.png)
 
 ## Tech stack
 
@@ -294,7 +304,7 @@ Notes:
 
 - auth routes under `/api/admin`
 - v1 APIs under `/api/v1` (chat, agent config, sessions, quotas, task status)
-- admin-only routers: `url_endpoints.py` (URL ingestion, Q&A management, crawling) and `index_endpoints.py` (index rebuild jobs) are protected at the router level via `Depends(get_current_admin)`
+- admin-only routers: `url_endpoints.py` (URL ingestion, crawling) and `index_endpoints.py` (index rebuild jobs) are protected at the router level via `Depends(get_current_admin)`
 - public v1 routes: `/api/v1/chat`, `/api/v1/chat/stream`, `/api/v1/contexts`, `/api/v1/config:public`
 - CORS middleware with a shared `apply_cors_headers()` helper for early responses (rate limit 429, body size 413)
 - i18n middleware
@@ -306,7 +316,7 @@ Notes:
 The main backend domains are:
 
 - **Agent config**: provider/model/system-prompt/widget settings
-- **Knowledge sources**: URLs and Q&A items, with SSRF protection via `backend/services/url_safety.py`
+- **Knowledge sources**: URLs and uploaded files, with SSRF protection via `backend/services/url_safety.py`
 - **Indexing**: chunking content and rebuilding R2R collections; each agent maps to its own R2R collection for data isolation
 - **Chat**: session creation, streaming replies, source citations, quota checks
 - **Admin auth**: dashboard login and registration
@@ -337,7 +347,7 @@ The retrieval/indexing pipeline spans:
 
 The LLM abstraction is in `backend/services/llm_service.py`. Provider selection is driven by `Agent.provider_type`. The current code supports OpenAI-compatible providers plus dedicated paths for OpenAI Native and Google.
 
-Embedding settings are independent from the chat model provider. Admins can choose Jina or SiliconFlow for knowledge-base indexing/retrieval in Playground; the Websites and Q&A pages only require the API key for the currently selected embedding provider. SiliconFlow can use a dedicated SiliconFlow Embedding API key, with legacy fallback to the main SiliconFlow AI key when the AI provider is also SiliconFlow.
+Embedding settings are independent from the chat model provider. Admins can choose Jina or SiliconFlow for knowledge-base indexing/retrieval in Playground; the Websites and File Upload pages only require the API key for the currently selected embedding provider. SiliconFlow can use a dedicated SiliconFlow Embedding API key, with legacy fallback to the main SiliconFlow AI key when the AI provider is also SiliconFlow.
 
 ### Frontend
 
@@ -449,6 +459,16 @@ Examples of backend endpoints present in the codebase:
 - `/api/v1/urls:refetch`
 - `/api/v1/index:rebuild`
 - `/api/v1/index:status`
+
+## Contributors
+
+<a href="https://github.com/haoyiyin/basjoo/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=haoyiyin/basjoo" />
+</a>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=haoyiyin/basjoo&type=Date)](https://star-history.com/#haoyiyin/basjoo&Date)
 
 ## Current status
 
